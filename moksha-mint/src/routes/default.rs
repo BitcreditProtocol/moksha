@@ -22,6 +22,9 @@ use crate::{
     mint::Mint,
 };
 use chrono::{Duration, Utc};
+use moksha_core::primitives::{
+    PostMeltQuoteRequestBitcredit, PostMeltQuoteResponseBitcredit,
+};
 use std::str::FromStr;
 
 #[utoipa::path(
@@ -222,6 +225,53 @@ pub async fn post_melt_quote_bolt11(
     tx.commit().await?;
 
     Ok(Json(quote.into()))
+}
+
+#[utoipa::path(
+    post,
+    path = "/v1/melt/quote/bitcredit",
+    request_body = PostMeltQuoteBolt11RequestBitcredit,
+    responses(
+    (status = 200, description = "post mint quote bitcredit", body = [PostMeltQuoteBolt11ResponseBitcredit])
+    ),
+)]
+#[instrument(name = "post_melt_quote_bitcredit", skip(mint), err)]
+pub async fn post_melt_quote_bitcredit(
+    State(mint): State<Mint>,
+    Json(melt_request): Json<PostMeltQuoteRequestBitcredit>,
+) -> Result<Json<PostMeltQuoteResponseBitcredit>, MokshaMintError> {
+    let key = Uuid::new_v4();
+    let (pr, _hash) = mint
+        .create_invoice(key.to_string(), melt_request.quote_amount)
+        .await?;
+
+    let quote = Bolt11MintQuote {
+        quote_id: key,
+        payment_request: pr.clone(),
+        expiry: quote_expiry_48_hours(),
+        paid: true,
+    };
+
+    let mut tx = mint.db.begin_tx().await?;
+    mint.db.add_bolt11_mint_quote(&mut tx, &quote).await?;
+    tx.commit().await?;
+
+    let fee_reserve = mint.fee_reserve_sat(melt_request.quote_amount);
+
+    let response = PostMeltQuoteResponseBitcredit {
+        quote: quote.quote_id.to_string(),
+        amount: melt_request.quote_amount,
+        fee_reserve: fee_reserve,
+        bill_id: melt_request.bill_id,
+        expiry: Option::from(quote.expiry),
+    };
+
+    Ok(Json(response))
+}
+
+fn quote_expiry_48_hours() -> u64 {
+    let now = Utc::now() + Duration::try_hours(48).expect("invalid duration");
+    now.timestamp() as u64
 }
 
 fn quote_expiry() -> u64 {

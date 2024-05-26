@@ -159,11 +159,27 @@ pub struct PostMeltQuoteBolt11Request {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, ToSchema)]
+pub struct PostMeltQuoteRequestBitcredit {
+    pub unit: CurrencyUnit,
+    pub bill_id: String,
+    pub quote_amount: u64,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone, ToSchema)]
 pub struct PostMeltQuoteBolt11Response {
     pub quote: String,
     pub amount: u64,
     pub fee_reserve: u64,
     pub paid: bool,
+    pub expiry: Option<u64>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone, ToSchema)]
+pub struct PostMeltQuoteResponseBitcredit {
+    pub quote: String,
+    pub amount: u64,
+    pub fee_reserve: u64,
+    pub bill_id: String,
     pub expiry: Option<u64>,
 }
 
@@ -185,6 +201,17 @@ pub struct Bolt11MeltQuote {
     pub paid: bool,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct MeltQuoteBitcredit {
+    pub quote_id: Uuid,
+    pub amount: u64,
+    pub fee_reserve: u64,
+    pub payment_request: String,
+    pub expiry: u64,
+    pub bill_id: String,
+}
+
+
 impl From<Bolt11MeltQuote> for PostMeltQuoteBolt11Response {
     fn from(quote: Bolt11MeltQuote) -> Self {
         Self {
@@ -193,6 +220,18 @@ impl From<Bolt11MeltQuote> for PostMeltQuoteBolt11Response {
             fee_reserve: quote.fee_reserve,
             expiry: Some(quote.expiry),
             paid: quote.paid,
+        }
+    }
+}
+
+impl From<MeltQuoteBitcredit> for PostMeltQuoteResponseBitcredit {
+    fn from(quote: MeltQuoteBitcredit) -> Self {
+        Self {
+            quote: quote.quote_id.to_string(),
+            amount: quote.amount,
+            fee_reserve: quote.fee_reserve,
+            expiry: Some(quote.expiry),
+            bill_id: quote.bill_id
         }
     }
 }

@@ -5,7 +5,8 @@ use crate::routes::btconchain::{
 };
 use crate::routes::default::{
     get_info, get_keys, get_keys_by_id, get_keysets, get_melt_quote_bolt11, get_mint_quote_bolt11,
-    post_melt_bolt11, post_melt_quote_bolt11, post_mint_bolt11, post_mint_quote_bolt11, post_swap,
+    post_melt_bolt11, post_melt_quote_bolt11, post_melt_quote_bitcredit, post_mint_bolt11,
+    post_mint_quote_bolt11, post_swap,
 };
 use axum::extract::Request;
 use axum::http::{HeaderName, HeaderValue, StatusCode};
@@ -31,7 +32,7 @@ use moksha_core::primitives::{
     PostMeltQuoteBolt11Response, PostMeltQuoteBtcOnchainRequest, PostMeltQuoteBtcOnchainResponse,
     PostMintBolt11Request, PostMintBolt11Response, PostMintQuoteBolt11Request,
     PostMintQuoteBolt11Response, PostMintQuoteBtcOnchainRequest, PostMintQuoteBtcOnchainResponse,
-    PostSwapRequest, PostSwapResponse,
+    PostSwapRequest, PostSwapResponse, PostMeltQuoteResponseBitcredit, PostMeltQuoteRequestBitcredit,
 };
 
 use tower_http::services::ServeDir;
@@ -100,6 +101,7 @@ pub async fn run_server(mint: Mint) -> anyhow::Result<()> {
         crate::routes::default::get_mint_quote_bolt11,
         crate::routes::default::post_melt_bolt11,
         crate::routes::default::post_melt_quote_bolt11,
+        crate::routes::default::post_melt_quote_bitcredit,
         crate::routes::default::get_melt_quote_bolt11,
         crate::routes::default::post_swap,
         crate::routes::default::get_info,
@@ -136,7 +138,9 @@ pub async fn run_server(mint: Mint) -> anyhow::Result<()> {
         PostMintQuoteBolt11Request,
         PostMintQuoteBolt11Response,
         PostMeltQuoteBolt11Request,
+        PostMeltQuoteRequestBitcredit,
         PostMeltQuoteBolt11Response,
+        PostMeltQuoteResponseBitcredit,
         PostMeltBolt11Request,
         PostMeltBolt11Response,
         PostMintBolt11Request,
@@ -165,6 +169,7 @@ fn app(mint: Mint) -> Router {
         .route("/v1/mint/quote/bolt11/:quote", get(get_mint_quote_bolt11))
         .route("/v1/mint/bolt11", post(post_mint_bolt11))
         .route("/v1/melt/quote/bolt11", post(post_melt_quote_bolt11))
+        .route("/v1/melt/quote/bitcredit", post(post_melt_quote_bitcredit))
         .route("/v1/melt/quote/bolt11/:quote", get(get_melt_quote_bolt11))
         .route("/v1/melt/bolt11", post(post_melt_bolt11))
         .route("/v1/swap", post(post_swap))
