@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use moksha_core::primitives::BitcreditMintQuote;
 use moksha_core::{
     primitives::{Bolt11MeltQuote, Bolt11MintQuote, BtcOnchainMeltQuote, BtcOnchainMintQuote},
     proof::Proofs,
@@ -49,6 +50,11 @@ pub trait Database {
         &self,
         tx: &mut sqlx::Transaction<Self::DB>,
         quote: &Bolt11MintQuote,
+    ) -> Result<(), MokshaMintError>;
+    async fn add_bitcredit_mint_quote(
+        &self,
+        tx: &mut sqlx::Transaction<Self::DB>,
+        quote: &BitcreditMintQuote,
     ) -> Result<(), MokshaMintError>;
     async fn update_bolt11_mint_quote(
         &self,

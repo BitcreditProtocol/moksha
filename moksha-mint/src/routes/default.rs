@@ -23,7 +23,8 @@ use crate::{
 };
 use chrono::{Duration, Utc};
 use moksha_core::primitives::{
-    PostMeltQuoteRequestBitcredit, PostMeltQuoteResponseBitcredit,
+    BitcreditMintQuote, PostMeltQuoteRequestBitcredit, PostMeltQuoteResponseBitcredit,
+    PostMintQuoteBitcreditRequest, PostMintQuoteBitcreditResponse,
 };
 use std::str::FromStr;
 
@@ -109,6 +110,33 @@ pub async fn get_keysets(State(mint): State<Mint>) -> Result<Json<Keysets>, Moks
         CurrencyUnit::Sat,
         true,
     )))
+}
+
+#[utoipa::path(
+    post,
+    path = "/v1/mint/quote/bitcredit",
+    request_body = PostMintQuoteBitcreditRequest,
+    responses(
+    (status = 200, description = "post mint quote", body = [PostMintQuoteBitcreditResponse])
+    ),
+)]
+#[instrument(name = "post_mint_quote_bitcredit", skip(mint), err)]
+pub async fn post_mint_quote_bitcredit(
+    State(mint): State<Mint>,
+    Json(request): Json<PostMintQuoteBitcreditRequest>,
+) -> Result<Json<PostMintQuoteBitcreditResponse>, MokshaMintError> {
+    // FIXME check currency unit
+    let key = Uuid::new_v4();
+
+    let quote = BitcreditMintQuote {
+        quote_id: key,
+        bill_id: request.bill_id,
+    };
+
+    let mut tx = mint.db.begin_tx().await?;
+    mint.db.add_bitcredit_mint_quote(&mut tx, &quote).await?;
+    tx.commit().await?;
+    Ok(Json(quote.into()))
 }
 
 #[utoipa::path(

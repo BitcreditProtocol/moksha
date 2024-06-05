@@ -121,12 +121,25 @@ pub struct PostMintQuoteBolt11Request {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, ToSchema)]
+pub struct PostMintQuoteBitcreditRequest {
+    pub amount: u64,
+    pub bill_id: String,
+    pub unit: CurrencyUnit,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone, ToSchema)]
 pub struct PostMintQuoteBolt11Response {
     pub quote: String,
     #[serde(rename = "request")]
     pub payment_request: String,
     pub paid: bool,
     pub expiry: Option<u64>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone, ToSchema)]
+pub struct PostMintQuoteBitcreditResponse {
+    pub quote: String,
+    pub bill_id: String,
 }
 
 impl From<Bolt11MintQuote> for PostMintQuoteBolt11Response {
@@ -136,6 +149,15 @@ impl From<Bolt11MintQuote> for PostMintQuoteBolt11Response {
             payment_request: quote.payment_request,
             paid: quote.paid,
             expiry: Some(quote.expiry),
+        }
+    }
+}
+
+impl From<BitcreditMintQuote> for PostMintQuoteBitcreditResponse {
+    fn from(quote: BitcreditMintQuote) -> Self {
+        Self {
+            quote: quote.quote_id.to_string(),
+            bill_id: quote.bill_id,
         }
     }
 }
@@ -192,6 +214,12 @@ pub struct Bolt11MintQuote {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct BitcreditMintQuote {
+    pub quote_id: Uuid,
+    pub bill_id: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Bolt11MeltQuote {
     pub quote_id: Uuid,
     pub amount: u64,
@@ -210,7 +238,6 @@ pub struct MeltQuoteBitcredit {
     pub expiry: u64,
     pub bill_id: String,
 }
-
 
 impl From<Bolt11MeltQuote> for PostMeltQuoteBolt11Response {
     fn from(quote: Bolt11MeltQuote) -> Self {
@@ -231,7 +258,7 @@ impl From<MeltQuoteBitcredit> for PostMeltQuoteResponseBitcredit {
             amount: quote.amount,
             fee_reserve: quote.fee_reserve,
             expiry: Some(quote.expiry),
-            bill_id: quote.bill_id
+            bill_id: quote.bill_id,
         }
     }
 }
