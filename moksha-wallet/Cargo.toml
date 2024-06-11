@@ -28,6 +28,7 @@ bip32 = { workspace = true, features = ["secp256k1", "std"] }
 bip39 = { workspace = true }
 hex = { workspace = true }
 rand = { workspace = true }
+sqlx-cli = "0.7.4"
 
 [target.'cfg(target_family = "wasm")'.dependencies]
 gloo-net = { version = "0.5.0" }
