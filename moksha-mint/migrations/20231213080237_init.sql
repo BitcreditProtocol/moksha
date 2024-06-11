@@ -18,11 +18,6 @@ CREATE TABLE bolt11_mint_quotes (
     paid BOOLEAN NOT NULL
 );
 
-CREATE TABLE bitcredit_mint_quotes (
-    id UUID PRIMARY KEY NOT NULL,
-    bill_id TEXT NOT NULL
-);
-
 CREATE TABLE bolt11_melt_quotes (
     id UUID PRIMARY KEY NOT NULL,
     payment_request TEXT NOT NULL,
