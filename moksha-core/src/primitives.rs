@@ -127,8 +127,6 @@ pub struct PostMintQuoteBitcreditRequest {
     pub unit: CurrencyUnit,
 }
 
-unsafe impl Send for PostMintQuoteBitcreditRequest {}
-
 #[derive(Deserialize, Serialize, Debug, Clone, ToSchema)]
 pub struct PostMintQuoteBolt11Response {
     pub quote: String,
@@ -143,8 +141,6 @@ pub struct PostMintQuoteBitcreditResponse {
     pub quote: String,
     pub bill_id: String,
 }
-
-unsafe impl Send for PostMintQuoteBitcreditResponse {}
 
 impl From<Bolt11MintQuote> for PostMintQuoteBolt11Response {
     fn from(quote: Bolt11MintQuote) -> Self {
