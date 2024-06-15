@@ -6,7 +6,7 @@ use crate::routes::btconchain::{
 use crate::routes::default::{
     get_info, get_keys, get_keys_by_id, get_keysets, get_melt_quote_bolt11, get_mint_quote_bolt11,
     post_melt_bolt11, post_melt_quote_bitcredit, post_melt_quote_bolt11, post_mint_bolt11,
-    post_mint_quote_bitcredit, post_mint_quote_bolt11, post_swap,
+    post_mint_quote_bitcredit, post_mint_quote_bolt11, post_request_to_mint_bitcredit, post_swap,
 };
 use axum::extract::Request;
 use axum::http::{HeaderName, HeaderValue, StatusCode};
@@ -168,6 +168,7 @@ fn app(mint: Mint) -> Router {
         .route("/v1/keysets", get(get_keysets))
         .route("/v1/mint/quote/bolt11", post(post_mint_quote_bolt11))
         .route("/v1/mint/quote/bitcredit", post(post_mint_quote_bitcredit))
+        .route("/v1/mint/request/bitcredit", post(post_request_to_mint_bitcredit), )
         .route("/v1/mint/quote/bolt11/:quote", get(get_mint_quote_bolt11))
         .route("/v1/mint/bolt11", post(post_mint_bolt11))
         .route("/v1/melt/quote/bolt11", post(post_melt_quote_bolt11))

@@ -128,6 +128,15 @@ pub struct PostMintQuoteBitcreditRequest {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, ToSchema)]
+pub struct PostRequestToMintBitcredit {
+    pub bill_id: String,
+    pub bill_key: String,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone, ToSchema)]
+pub struct PostRequestToMintBitcreditResponse {}
+
+#[derive(Deserialize, Serialize, Debug, Clone, ToSchema)]
 pub struct PostMintQuoteBolt11Response {
     pub quote: String,
     #[serde(rename = "request")]
@@ -159,6 +168,12 @@ impl From<BitcreditMintQuote> for PostMintQuoteBitcreditResponse {
             quote: quote.quote_id.to_string(),
             bill_id: quote.bill_id,
         }
+    }
+}
+
+impl From<BitcreditRequestToMint> for PostRequestToMintBitcreditResponse {
+    fn from(_quote: BitcreditRequestToMint) -> Self {
+        Self {}
     }
 }
 
@@ -216,6 +231,12 @@ pub struct Bolt11MintQuote {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct BitcreditMintQuote {
     pub quote_id: Uuid,
+    pub bill_id: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct BitcreditRequestToMint {
+    pub bill_key: String,
     pub bill_id: String,
 }
 

@@ -15,7 +15,10 @@ use moksha_core::{
     proof::Proofs,
 };
 
-use moksha_core::primitives::{PostMintQuoteBitcreditRequest, PostMintQuoteBitcreditResponse};
+use moksha_core::primitives::{
+    PostMintQuoteBitcreditRequest, PostMintQuoteBitcreditResponse, PostRequestToMintBitcredit,
+    PostRequestToMintBitcreditResponse,
+};
 use url::Url;
 
 use crate::{error::MokshaWalletError, http::CrossPlatformHttpClient};
@@ -113,6 +116,17 @@ impl CashuClient for CrossPlatformHttpClient {
     ) -> Result<PostMintQuoteBolt11Response, MokshaWalletError> {
         let body = PostMintQuoteBolt11Request { amount, unit };
         self.do_post(&mint_url.join("v1/mint/quote/bolt11")?, &body)
+            .await
+    }
+
+    async fn post_request_to_mint_bitcredit(
+        &self,
+        mint_url: &Url,
+        bill_id: String,
+        bill_key: String,
+    ) -> Result<PostRequestToMintBitcreditResponse, MokshaWalletError> {
+        let body = PostRequestToMintBitcredit { bill_id, bill_key };
+        self.do_post(&mint_url.join("v1/mint/request/bitcredit")?, &body)
             .await
     }
 

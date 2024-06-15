@@ -23,10 +23,12 @@ use crate::{
 };
 use chrono::{Duration, Utc};
 use moksha_core::primitives::{
-    BitcreditMintQuote, PostMeltQuoteRequestBitcredit, PostMeltQuoteResponseBitcredit,
-    PostMintQuoteBitcreditRequest, PostMintQuoteBitcreditResponse,
+    BitcreditMintQuote, BitcreditRequestToMint, PostMeltQuoteRequestBitcredit,
+    PostMeltQuoteResponseBitcredit, PostMintQuoteBitcreditRequest, PostMintQuoteBitcreditResponse,
+    PostRequestToMintBitcredit, PostRequestToMintBitcreditResponse,
 };
 use std::str::FromStr;
+use tonic::codegen::ok;
 
 #[utoipa::path(
         post,
@@ -137,6 +139,36 @@ pub async fn post_mint_quote_bitcredit(
     mint.db.add_bitcredit_mint_quote(&mut tx, &quote).await?;
     tx.commit().await?;
     Ok(Json(quote.into()))
+}
+
+#[utoipa::path(
+    post,
+    path = "/v1/mint/request/bitcredit",
+    request_body = PostRequestToMintBitcredit,
+    responses(
+    (status = 200, description = "post request to mint", body = [PostRequestToMintBitcreditResponse])
+    ),
+)]
+#[instrument(name = "post_request_to_mint_bitcredit", skip(mint), err)]
+pub async fn post_request_to_mint_bitcredit(
+    State(mint): State<Mint>,
+    Json(request): Json<PostRequestToMintBitcredit>,
+    //TODO: correct response
+) -> Result<Json<PostRequestToMintBitcreditResponse>, MokshaMintError> {
+    println!("{}", request.bill_id);
+    // TODO => decrypt bill key with own private key
+
+    let request_to_mint = BitcreditRequestToMint {
+        bill_key: request.bill_key,
+        bill_id: request.bill_id,
+    };
+
+    let mut tx = mint.db.begin_tx().await?;
+    mint.db
+        .add_bitcredit_request_to_mint(&mut tx, &request_to_mint)
+        .await?;
+    tx.commit().await?;
+    Ok(Json(request_to_mint.into()))
 }
 
 #[utoipa::path(

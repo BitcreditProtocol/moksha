@@ -19,7 +19,7 @@ pub mod crossplatform;
 
 #[cfg(test)]
 use mockall::automock;
-use moksha_core::primitives::PostMintQuoteBitcreditResponse;
+use moksha_core::primitives::{PostMintQuoteBitcreditResponse, PostRequestToMintBitcreditResponse};
 
 #[cfg_attr(test, automock)]
 #[async_trait(?Send)]
@@ -83,6 +83,13 @@ pub trait CashuClient {
         amount: u64,
         unit: CurrencyUnit,
     ) -> Result<PostMintQuoteBitcreditResponse, MokshaWalletError>;
+
+    async fn post_request_to_mint_bitcredit(
+        &self,
+        mint_url: &Url,
+        bill_id: String,
+        bill_key: String,
+    ) -> Result<PostRequestToMintBitcreditResponse, MokshaWalletError>;
 
     async fn get_mint_quote_bolt11(
         &self,

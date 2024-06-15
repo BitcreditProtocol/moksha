@@ -8,7 +8,7 @@ use moksha_core::{
     proof::{Proof, Proofs},
 };
 
-use moksha_core::primitives::BitcreditMintQuote;
+use moksha_core::primitives::{BitcreditMintQuote, BitcreditRequestToMint};
 use sqlx::postgres::PgPoolOptions;
 use tracing::instrument;
 use uuid::Uuid;
@@ -189,6 +189,22 @@ impl Database for PostgresDB {
         sqlx::query!(
             "INSERT INTO bitcredit_mint_quotes (id, bill_id) VALUES ($1, $2)",
             quote.quote_id,
+            quote.bill_id,
+        )
+        .execute(&mut **tx)
+        .await?;
+        Ok(())
+    }
+
+    #[instrument(level = "debug", skip(self), err)]
+    async fn add_bitcredit_request_to_mint(
+        &self,
+        tx: &mut sqlx::Transaction<Self::DB>,
+        quote: &BitcreditRequestToMint,
+    ) -> Result<(), MokshaMintError> {
+        sqlx::query!(
+            "INSERT INTO bitcredit_requests_to_mint (bill_id, bill_key) VALUES ($1, $2)",
+            quote.bill_key,
             quote.bill_id,
         )
         .execute(&mut **tx)
