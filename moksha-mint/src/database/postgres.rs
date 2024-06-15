@@ -204,8 +204,8 @@ impl Database for PostgresDB {
     ) -> Result<(), MokshaMintError> {
         sqlx::query!(
             "INSERT INTO bitcredit_requests_to_mint (bill_id, bill_key) VALUES ($1, $2)",
-            quote.bill_key,
             quote.bill_id,
+            quote.bill_key,
         )
         .execute(&mut **tx)
         .await?;
