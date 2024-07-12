@@ -288,7 +288,7 @@ impl From<MeltQuoteBitcredit> for PostMeltQuoteResponseBitcredit {
 pub struct PostMeltBolt11Request {
     pub quote: String,
     pub inputs: Proofs,
-    pub outputs: Vec<BlindedMessage>,
+    pub outputs: Option<Vec<BlindedMessage>>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, ToSchema)]

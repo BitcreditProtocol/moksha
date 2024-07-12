@@ -65,7 +65,7 @@ impl CashuClient for CrossPlatformHttpClient {
         let body = PostMeltBolt11Request {
             quote,
             inputs,
-            outputs,
+            outputs: Some(outputs),
         };
 
         self.do_post(&mint_url.join("v1/melt/bolt11")?, &body).await
